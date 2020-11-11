@@ -1,0 +1,14 @@
+{
+  "name": "digimon-visualizer",
+  "version": "1.0.0",
+  "description": "Digimon list in Elm",
+  "repository": "git@github.com:celsobonutti/elm-digimon-list.git",
+  "author": "Celso Bonutti Filho <celso.bonuttif@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "elm-app build"
+  },
+  "devDependencies": {
+    "create-elm-app": "^5.14.0"
+  }
+}
