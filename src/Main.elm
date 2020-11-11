@@ -1,16 +1,21 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, div, h1, img, p, text)
-import Html.Attributes exposing (alt, src)
-import Html.Keyed as Keyed
-import Html.Lazy exposing (lazy)
+import Element exposing (Element, centerX, centerY, column, el, fill, image, layout, padding, paragraph, spacing, text, width, wrappedRow)
+import Element.Font exposing (Font, bold)
+import Element.Keyed as Keyed
+import Element.Lazy exposing (lazy)
+import Html
 import Http
 import Json.Decode exposing (Decoder, field, list, string)
 
 
 
 ---- MODEL ----
+
+
+type alias Flags =
+    {}
 
 
 type alias Digimon =
@@ -30,8 +35,8 @@ type alias Model =
     State
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Flags -> ( Model, Cmd Msg )
+init _ =
     ( Loading
     , loadDigimon
     )
@@ -63,61 +68,59 @@ update msg model =
 ---- VIEW ----
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    case model of
-        Loading ->
-            viewLoading
+    { title = "Digimon List"
+    , body =
+        [ layout
+            []
+            (case model of
+                Loading ->
+                    viewLoading
 
-        Error ->
-            viewError
+                Error ->
+                    viewError
 
-        Data digimon ->
-            viewData digimon
-
-
-viewLoading : Html msg
-viewLoading =
-    div []
-        [ h1 [] [ text "Loading your Digimons!" ]
+                Data digimonList ->
+                    viewData digimonList
+            )
         ]
+    }
 
 
-viewError : Html msg
-viewError =
-    div []
-        [ h1 [] [ text "Oops, there was an error loading your Digimons :(" ]
-        ]
-
-
-viewData : List Digimon -> Html msg
+viewData : List Digimon -> Element msg
 viewData digimonList =
-    Keyed.node "div" [] (List.map viewKeyedDigimon digimonList)
+    wrappedRow [ centerY, spacing 15, padding 15 ] (List.map viewDigimon digimonList)
 
 
-viewKeyedDigimon : Digimon -> ( String, Html msg )
-viewKeyedDigimon digimon =
-    ( digimon.name, lazy viewDigimon digimon )
-
-
-viewDigimon : Digimon -> Html msg
+viewDigimon : Digimon -> Element msg
 viewDigimon digimon =
-    div []
-        [ img [ src digimon.img, alt digimon.name ] []
-        , h1 [] [ text digimon.name ]
-        , p [] [ text digimon.level ]
+    column [ spacing 15 ]
+        [ image [] { src = digimon.img, description = digimon.name }
+        , el [ bold ] (text digimon.name)
+        , text digimon.level
         ]
+
+
+viewLoading : Element msg
+viewLoading =
+    text "Loading your Digimons!"
+
+
+viewError : Element msg
+viewError =
+    text "Oops, there was an error loading your Digimons :("
 
 
 
 ---- PROGRAM ----
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
-    Browser.element
+    Browser.document
         { view = view
-        , init = \_ -> init
+        , init = init
         , update = update
         , subscriptions = always Sub.none
         }
